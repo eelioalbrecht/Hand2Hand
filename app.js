@@ -1,3 +1,4 @@
+
 // Mock DB
 let currentUser = null;
 let users = [];
