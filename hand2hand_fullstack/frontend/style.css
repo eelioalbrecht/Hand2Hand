@@ -1,0 +1,33 @@
+:root{
+  --bg:#071025;
+  --card:#0b1220;
+  --accent:#06b6d4;
+  --muted:#9ca3af;
+  --glass: rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background:linear-gradient(180deg,#071025 0%, #071a2b 100%);
+  color:#e6eef6;
+  min-height:100vh;
+}
+.topbar{padding:18px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.03)}
+.subtitle{color:var(--muted)}
+.container{max-width:1100px;margin:18px auto;padding:12px;display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.card{background:var(--card);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.02)}
+input, textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
+button{background:var(--accent);color:#03202a;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+.row{display:flex;gap:8px;margin-top:8px;align-items:center}
+.results{margin-top:12px;background:var(--glass);padding:10px;border-radius:8px;color:#dff7fb}
+.imgPreview img{max-width:100%;border-radius:8px;margin-top:8px}
+.small{color:var(--muted);margin-top:8px}
+.authSection{margin-top:8px}
+#authTabs button{margin-right:8px}
+
+/* admin table */
+.adminTable{width:100%;border-collapse:collapse;margin-top:12px}
+.adminTable th,.adminTable td{border:1px solid rgba(255,255,255,0.1);padding:6px;text-align:left}
+.adminTable th{background:rgba(255,255,255,0.05)}
+#charts canvas{background:rgba(255,255,255,0.02);border-radius:8px;padding:10px}

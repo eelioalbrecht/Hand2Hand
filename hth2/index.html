@@ -1,0 +1,130 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand2Hand</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Hand2Hand</h1>
+    <div class="subtitle">Connecting Donors to NGOs, Powered by AI</div>
+  </div>
+
+  <div class="container">
+    <div class="left">
+      <div id="authSection" class="card">
+        <h2>Account</h2>
+        <label>Name</label><input type="text" id="username">
+        <label>Phone</label><input type="tel" id="userphone">
+        <label>Address</label><input type="text" id="useraddress">
+        <div class="row">
+          <button id="sendOtpBtn">Send OTP</button>
+        </div>
+        <div id="otpInput" style="display:none;">
+          <label>OTP</label><input type="text" id="otp">
+          <button id="verifyOtpBtn" style="display:none;">Verify OTP</button>
+        </div>
+        <div id="authStatus" class="small"></div>
+      </div>
+
+      <div id="donationSection" class="card" style="display:none;">
+        <h2>Donation Helper</h2>
+        <textarea id="donationText" placeholder="Describe your donation (e.g., 'old books and clothes')"></textarea>
+        <div class="row">
+          <button id="recommendBtn">Get NGO Recommendations</button>
+          <button id="autoClassifyBtn">Auto-classify from photo</button>
+        </div>
+        <div id="recommendResults" class="results"></div>
+      </div>
+
+      <div id="uploadDonationSection" class="card" style="display:none;">
+        <h2>Upload Donation Photo</h2>
+        <input type="file" id="donorImage" accept="image/*">
+        <div id="donorImagePreview" class="imgPreview"></div>
+        <div id="classifyStatus" class="small"></div>
+      </div>
+
+      <div id="chatbotSection" class="card" style="display:none;">
+        <h2>AI Chatbot Helper</h2>
+        <div id="chatbotOutput" style="height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+        <div class="row">
+          <input type="text" id="chatbotInput" placeholder="Ask about donations...">
+          <button id="chatbotSendBtn">Send</button>
+        </div>
+      </div>
+
+      <div id="gpsSection" class="card" style="display:none;">
+        <h2>GPS</h2>
+        <p>Share your location to match NGOs nearby</p>
+        <button id="shareLocBtn">Share Location</button>
+        <div id="locResult" class="small"></div>
+      </div>
+
+      <div id="donationFlowSection" class="card" style="display:none;">
+        <h2>Donor → NGO Flow</h2>
+        <p>Simulated flow: choose NGO from recommendations and "create" donation</p>
+        <select id="chooseNgo"><option value="">Select NGO</option></select>
+        <button id="createDonationBtn">Create Donation</button>
+        <div id="donationStatus" class="small"></div>
+      </div>
+
+      <div id="ngoUsageSection" class="card" style="display:none;">
+        <h2>NGO Usage Photo (Proof)</h2>
+        <input type="file" id="ngoUsageImage" accept="image/*">
+        <div id="ngoUsagePreview" class="imgPreview"></div>
+        <button id="submitUsageBtn">Submit Usage Photo</button>
+        <div id="usageStatus" class="small"></div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h2>Founders 📷</h2>
+        <ul id="foundersList"></ul>
+        <div id="donateMoneySection">
+          <h3>Donate Money</h3>
+          <input type="number" id="donateAmount" placeholder="Amount">
+          <button id="donateMoneyBtn">Donate</button>
+          <div id="donateStatus" class="small"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Quick links to registered NGOs</h2>
+        <ul id="ngosList"></ul>
+        <button id="viewAllNgosBtn">View All NGOs</button>
+      </div>
+
+      <div class="card">
+        <h2>Top donors (this month)</h2>
+        <ul id="topDonorsList"></ul>
+      </div>
+
+      <div class="card usageUpload">
+        <h3>NGO Usage Photo (Proof)</h3>
+        <input id="ngoUsageImage" accept="image/*" capture="environment" type="file" />
+        <div id="ngoUsagePreview" class="imgPreview"></div>
+        <button id="submitUsageBtn">Submit Usage Photo</button>
+        <div id="usageStatus" class="small"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="allNgosSection" style="display:none; padding:22px; max-width:1100px; margin:0 auto;">
+    <h1>All Registered NGOs</h1>
+    <ul id="allNgosList"></ul>
+    <button id="backFromNgosBtn">Back</button>
+  </div>
+
+  <div class="footer">
+    This is a local demo. Replace mock endpoints with your backend to persist data and enable OTP login, file uploads, and real AI services.
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

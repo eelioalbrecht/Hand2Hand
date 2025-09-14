@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hand2Hand — Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Hand2Hand — Admin</h1>
+    <p class="subtitle">Manage Users, NGOs, and Donations</p>
+  </header>
+
+  <main class="container" style="grid-template-columns:1fr">
+    <section class="card" id="adminLoginCard">
+      <h2>Admin Login</h2>
+      <input id="adminEmail" placeholder="Admin Email" />
+      <input id="adminPass" type="password" placeholder="Password" />
+      <button id="adminLoginBtn">Login</button>
+      <div id="adminMsg" class="small muted"></div>
+    </section>
+
+    <section class="card" id="adminPanel" style="display:none;">
+      <h2>Dashboard</h2>
+      <div class="row">
+        <button id="tabUsers">Users</button>
+        <button id="tabNgos">NGOs</button>
+        <button id="tabDonations">Donations</button>
+        <button id="downloadCsvBtn">Export Donations CSV</button>
+      </div>
+
+      <div id="panelContent" style="margin-top:16px;"></div>
+
+      <div id="charts" style="margin-top:20px;display:none;">
+        <h3>Donation Analytics</h3>
+        <canvas id="ngoBarChart" height="120"></canvas>
+        <canvas id="timeLineChart" height="120" style="margin-top:20px;"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Admin dashboard for monitoring Hand2Hand.</small>
+  </footer>
+
+  <script src="admin.js"></script>
+</body>
+</html>

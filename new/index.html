@@ -1,0 +1,305 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand2Hand - Connect & Donate</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+</head>
+<body class="bg-gradient-to-b from-blue-900 to-gray-900 text-white">
+    <!-- Landing Page -->
+    <div id="landing-page" class="min-h-screen">
+        <header class="bg-blue-800 p-4 sticky top-0 z-10 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold">🤝 Hand2Hand</h1>
+                <div>
+                    <button id="login-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Login</button>
+                    <button id="signup-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg ml-2 hover:bg-green-600 transition">Sign Up</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="container mx-auto py-16 text-center">
+            <h2 class="text-5xl font-extrabold mb-4 animate-fade-in">Connecting Hearts, Changing Lives</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Hand2Hand is a platform that bridges donors and NGOs with AI-powered matching, ensuring your donations reach those who need them most.</p>
+            <div class="flex justify-center gap-4">
+                <button id="start-donating-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Start Donating</button>
+                <button id="register-ngo-btn" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">Register NGO</button>
+            </div>
+        </section>
+
+        <section class="container mx-auto py-12">
+            <h3 class="text-3xl font-bold text-center mb-8">Who We Are</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-blue-800 p-6 rounded-lg shadow-lg hover:scale-105 transition">
+                    <h4 class="text-xl font-semibold">Satvik</h4>
+                    <p class="text-sm">Co-Founder & PR<br>@satvik</p>
+                </div>
+                <div class="bg-blue-800 p-6 rounded-lg shadow-lg hover:scale-105 transition">
+                    <h4 class="text-xl font-semibold">Pranav</h4>
+                    <p class="text-sm">Co-Founder & Backend/Strategy<br>@eelioalbrecht</p>
+                </div>
+                <div class="bg-blue-800 p-6 rounded-lg shadow-lg hover:scale-105 transition">
+                    <h4 class="text-xl font-semibold">Shishir</h4>
+                    <p class="text-sm">Co-Founder & Operations<br>@shishirk_2007</p>
+                </div>
+                <div class="bg-blue-800 p-6 rounded-lg shadow-lg hover:scale-105 transition">
+                    <h4 class="text-xl font-semibold">Sharvil</h4>
+                    <p class="text-sm">Co-Founder & Design/Frontend<br>@Sharvil07</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Donor Dashboard -->
+    <div id="donor-dashboard" class="min-h-screen hidden">
+        <header class="bg-blue-800 p-4 sticky top-0 z-10 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold">🤝 Donor Dashboard</h1>
+                <div>
+                    <span id="donor-welcome" class="mr-4"></span>
+                    <button id="donor-logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="container mx-auto py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="card bg-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">📦 Upload Donation</h3>
+                    <label class="block mb-2">Item Name:</label>
+                    <input id="item-name" type="text" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                    <label class="block mb-2 mt-4">Quantity:</label>
+                    <input id="item-quantity" type="number" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                    <label class="block mb-2 mt-4">Category:</label>
+                    <select id="item-category" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600">
+                        <option value="">Select Category</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Food">Food</option>
+                        <option value="Books">Books</option>
+                        <option value="Toys">Toys</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Medical Supplies">Medical Supplies</option>
+                    </select>
+                    <label class="block mb-2 mt-4">Description:</label>
+                    <textarea id="item-description" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600"></textarea>
+                    <label class="block mb-2 mt-4">Upload Photo:</label>
+                    <input id="donor-image" type="file" accept="image/*" class="mb-4">
+                    <div id="donor-image-preview" class="img-preview"></div>
+                    <button id="auto-classify-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2 hover:bg-blue-700 transition">Auto-Classify</button>
+                    <div id="classify-status" class="text-sm mt-2"></div>
+                    <button id="add-item-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-green-700 transition">Add Item</button>
+                </div>
+
+                <div class="card bg-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">🤖 AI Recommendations</h3>
+                    <textarea id="donation-text" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="Describe your donation..."></textarea>
+                    <button id="recommend-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Get Recommendations</button>
+                    <div id="recommend-results" class="mt-4"></div>
+                </div>
+
+                <div class="card bg-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">📍 Location Services</h3>
+                    <p class="mb-4">Share your location for better NGO matches</p>
+                    <button id="share-loc-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Share Location</button>
+                    <div id="loc-result" class="text-sm mt-2"></div>
+                    <h3 class="text-xl font-bold mt-6 mb-4">🏢 Create Donation</h3>
+                    <select id="choose-ngo" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 mb-4">
+                        <option value="">Select an NGO</option>
+                    </select>
+                    <button id="create-donation-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Create Donation</button>
+                    <div id="donation-status" class="text-sm mt-2"></div>
+                </div>
+            </div>
+
+            <div class="card bg-blue-800 p-6 rounded-lg shadow-lg mt-6">
+                <h3 class="text-xl font-bold mb-4">📋 My Donations</h3>
+                <div id="donation-items" class="text-sm">No donations added yet.</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- NGO Dashboard -->
+    <div id="ngo-dashboard" class="min-h-screen hidden">
+        <header class="bg-blue-800 p-4 sticky top-0 z-10 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-3xl font-bold">🏢 NGO Dashboard</h1>
+                <div>
+                    <span id="ngo-welcome" class="mr-4"></span>
+                    <button id="ngo-logout-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <section class="container mx-auto py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card bg-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">📦 Available Donations</h3>
+                    <div id="available-donations" class="text-sm">1 donation found!</div>
+                </div>
+
+                <div class="card bg-blue-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">📋 Our Needs</h3>
+                    <textarea id="ngo-needs" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600" placeholder="List items your NGO needs..."></textarea>
+                    <button id="update-needs-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Update Needs</button>
+                    <div id="needs-status" class="text-sm mt-2"></div>
+                </div>
+            </div>
+
+            <div class="card bg-blue-800 p-6 rounded-lg shadow-lg mt-6">
+                <h3 class="text-xl font-bold mb-4">📸 Submit Usage Proof</h3>
+                <select id="ngo-donation-select" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 mb-4">
+                    <option value="">Select a donation</option>
+                </select>
+                <input id="ngo-usage-image" type="file" accept="image/*" class="mb-4">
+                <div id="ngo-usage-preview" class="img-preview"></div>
+                <button id="submit-usage-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Submit Usage Photo</button>
+                <div id="usage-status" class="text-sm mt-2"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-gray-800 p-8 rounded-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6">Login to Hand2Hand</h2>
+            <div class="mb-4">
+                <label class="block mb-2">Phone Number:</label>
+                <input id="login-phone" type="tel" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            </div>
+            <div id="otp-section" class="mb-4 hidden">
+                <label class="block mb-2">Enter OTP:</label>
+                <input id="login-otp" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                <button id="verify-login-otp-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2 hover:bg-blue-700 transition">Verify OTP</button>
+            </div>
+            <div class="flex justify-between">
+                <button id="send-login-otp-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Send OTP</button>
+                <button id="cancel-login-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">Cancel</button>
+            </div>
+            <div id="login-status" class="text-sm mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-gray-800 p-8 rounded-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6">Create Account</h2>
+            <div class="mb-4">
+                <label class="block mb-2">Account Type:</label>
+                <select id="account-type" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                    <option value="">Select Type</option>
+                    <option value="donor">Donor</option>
+                    <option value="ngo">NGO</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2">Name:</label>
+                <input id="signup-name" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2">Phone Number:</label>
+                <input id="signup-phone" type="tel" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2">Address:</label>
+                <input id="signup-address" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+            </div>
+            <div id="ngo-fields" class="hidden">
+                <div class="mb-4">
+                    <label class="block mb-2">Registration Number:</label>
+                    <input id="ngo-reg-number" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                </div>
+                <div class="mb-4">
+                    <label class="block mb-2">NGO Description:</label>
+                    <textarea id="ngo-description" class="w-full p-2 rounded bg-gray-700 border border-gray-600"></textarea>
+                </div>
+            </div>
+            <div id="signup-otp-section" class="mb-4 hidden">
+                <label class="block mb-2">Enter OTP:</label>
+                <input id="signup-otp" type="text" class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                <button id="verify-signup-otp-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2 hover:bg-blue-700 transition">Verify & Register</button>
+            </div>
+            <div class="flex justify-between">
+                <button id="send-signup-otp-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Send OTP</button>
+                <button id="cancel-signup-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">Cancel</button>
+            </div>
+            <div id="signup-status" class="text-sm mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chatbot-modal" class="fixed bottom-4 right-4 bg-gray-800 p-4 rounded-lg shadow-lg w-96 z-20 hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">🤖 AI Assistant</h3>
+            <button id="close-chatbot-btn" class="text-white">✕</button>
+        </div>
+        <div id="chatbot-output" class="h-64 overflow-y-auto mb-4 p-4 bg-gray-700 rounded"></div>
+        <div class="flex">
+            <input id="chatbot-input" type="text" class="flex-grow p-2 rounded-l bg-gray-600 border border-gray-500" placeholder="Ask about donations...">
+            <button id="chatbot-send-btn" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 transition">Send</button>
+        </div>
+    </div>
+
+    <button id="chatbot-btn" class="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition">🤖</button>
+<!---
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+-->
+    <script src="app.js"></script>
+</body>
+</html>

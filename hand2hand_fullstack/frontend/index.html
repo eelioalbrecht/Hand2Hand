@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hand2Hand</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@3.1.0/dist/mobilenet.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Hand2Hand</h1>
+    <p class="subtitle">Donate easily — AI recommender + email OTP auth</p>
+  </header>
+
+  <main class="container">
+    <section class="card" id="authCard">
+      <h2>Account</h2>
+
+      <div id="authTabs">
+        <button id="tabUser">User</button>
+        <button id="tabNGO">NGO</button>
+      </div>
+
+      <div id="userAuth" class="authSection">
+        <h3>Donor - Signup / Login</h3>
+        <div>
+          <input id="u_name" placeholder="Full name"/>
+          <input id="u_email" placeholder="Email (for OTP)"/>
+          <div class="row">
+            <button id="sendEmailOtpBtn">Send Email OTP</button>
+            <button id="userSignupBtn">Sign up (password)</button>
+          </div>
+          <div id="otpUI" style="display:none; margin-top:8px;">
+            <input id="u_otp" placeholder="Enter OTP"/>
+            <button id="verifyEmailOtpBtn">Verify OTP</button>
+          </div>
+
+          <hr/>
+
+          <input id="u_login_id" placeholder="Username or email"/>
+          <input id="u_login_pass" placeholder="Password (leave blank to use OTP)"/>
+          <div class="row">
+            <button id="userLoginBtn">Login</button>
+            <button id="userLoginOtpBtn">Send OTP to Email</button>
+          </div>
+          <div id="userAuthMsg" class="small muted"></div>
+        </div>
+      </div>
+
+      <div id="ngoAuth" class="authSection" style="display:none;">
+        <h3>NGO - Signup / Login</h3>
+        <input id="ngo_name" placeholder="NGO name"/>
+        <input id="ngo_phone" placeholder="Phone"/>
+        <input id="ngo_code" placeholder="Preferred code (optional)"/>
+        <input id="ngo_pass" placeholder="Password" type="password"/>
+        <div class="row">
+          <button id="ngoSignupBtn">Register NGO</button>
+          <button id="ngoLoginBtn">Login NGO</button>
+        </div>
+        <div id="ngoAuthMsg" class="small muted"></div>
+      </div>
+    </section>
+
+    <section class="card" id="mainCard">
+      <h2>Donation Helper</h2>
+      <textarea id="donationText" placeholder='Describe donation e.g. "10 blankets, 5 books"'></textarea>
+      <div class="row">
+        <button id="recommendBtn">Get NGO Recommendations</button>
+        <button id="autoClassifyBtn">Auto-classify from photo</button>
+        <button id="shareLocBtn">Share Location</button>
+      </div>
+      <div id="recommendResults" class="results"></div>
+
+      <hr/>
+      <h3>Upload donation photo</h3>
+      <input id="donorImage" type="file" accept="image/*" capture="environment"/>
+      <div id="donorImagePreview" class="imgPreview"></div>
+      <div id="classifyStatus" class="small muted">Model not loaded yet.</div>
+
+      <hr/>
+      <h3>Create Donation</h3>
+      <input id="item_name" placeholder="Item name or short desc"/>
+      <input id="item_condition" placeholder="Condition"/>
+      <input id="item_address" placeholder="Pickup address"/>
+      <select id="chooseNgo"></select>
+      <div class="row">
+        <button id="createDonationBtn">Create Donation</button>
+      </div>
+      <div id="donationStatus" class="small muted"></div>
+    </section>
+
+    <section class="card" id="sideCard">
+      <h3>Founders</h3>
+      <ul id="foundersList"></ul>
+      <h3>Top donors</h3>
+      <ol id="topDonorsList"></ol>
+      <h3>Quick NGOs</h3>
+      <ul id="ngosList"></ul>
+      <p style="margin-top:12px"><a href="admin.html" style="color:#06b6d4">Admin login (separate page)</a></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Demo — backend provides persistent storage and email OTP.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hackathon App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container" id="login-container">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Enter your email">
+    <button onclick="sendOTP()">Send OTP</button>
+    <input type="text" id="otp" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Login</button>
+    <p id="login-msg"></p>
+</div>
+
+<div class="container" id="donation-container" style="display:none">
+    <h2>Donation</h2>
+    <input type="number" id="amount" placeholder="Donation Amount">
+    <input type="text" id="comment" placeholder="Comment">
+    <button onclick="makeDonation()">Donate</button>
+    <p id="ai-response"></p>
+</div>
+
+<div class="container" id="admin-container" style="display:none">
+    <h2>Admin View</h2>
+    <button onclick="loadDonations()">Load Donations</button>
+    <ul id="donation-list"></ul>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
